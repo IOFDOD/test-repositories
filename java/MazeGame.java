@@ -120,6 +120,11 @@ public final class MazeGame extends JPanel implements ActionListener, KeyListene
     }
     private boolean pressed(int code) { return code < keys.length && keys[code]; }
 
+    static void sortSprites(List<double[]> sprites, double dirX, double dirY) {
+        // Painter's order must use camera depth, not radial distance.
+        sprites.sort(Comparator.comparingDouble((double[] s) -> s[0] * dirX + s[1] * dirY).reversed());
+    }
+
     private void render() {
         Graphics2D g = frame.createGraphics();
         g.setPaint(new GradientPaint(0, 0, new Color(12, 18, 40), 0, HEIGHT / 2, new Color(54, 74, 99)));
@@ -155,10 +160,10 @@ public final class MazeGame extends JPanel implements ActionListener, KeyListene
         for (int row = 0; row < map.length; row++) for (int col = 0; col < map[row].length; col++) {
             if (map[row][col] == 'C' || map[row][col] == 'E') {
                 double sx = col + .5 - x, sy = row + .5 - y;
-                sprites.add(new double[]{sx, sy, sx * sx + sy * sy, map[row][col]});
+                sprites.add(new double[]{sx, sy, map[row][col]});
             }
         }
-        sprites.sort(Comparator.comparingDouble((double[] s) -> s[2]).reversed());
+        sortSprites(sprites, dirX, dirY);
         for (double[] s : sprites) {
             double inv = 1.0 / (planeX * dirY - dirX * planeY);
             double tx = inv * (dirY * s[0] - dirX * s[1]);
@@ -167,7 +172,7 @@ public final class MazeGame extends JPanel implements ActionListener, KeyListene
             int center = (int)(WIDTH / 2.0 * (1 + tx / ty));
             int size = Math.min(HEIGHT * 3, (int)(HEIGHT / ty * .42));
             int left = Math.max(0, (center - size / 2) / STRIPE), right = Math.min(depth.length - 1, (center + size / 2) / STRIPE);
-            boolean crystal = s[3] == 'C';
+            boolean crystal = s[2] == 'C';
             for (int col = left; col <= right; col++) {
                 if (ty >= depth[col]) continue;
                 double u = Math.abs((col * STRIPE - center) / (size / 2.0));

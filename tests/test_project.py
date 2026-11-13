@@ -28,6 +28,10 @@ with tempfile.TemporaryDirectory() as tmp:
     run(GEN, a, -1, ok=False)
     run(GEN, a, 4294967296, ok=False)
     run(GEN, tmp / 'missing' / 'map', 42, ok=False)
+    # /dev/full reports buffered write errors only when the stream is flushed/closed.
+    if pathlib.Path('/dev/full').exists():
+        failure = run(GEN, '/dev/full', 42, ok=False)
+        assert 'Created' not in failure.stdout
     check(ROOT / 'maps' / 'default.map')
     invalid = [
         '#####\n#SCE#\n####\n',              # non-rectangular

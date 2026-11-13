@@ -10,6 +10,13 @@ public class GameTest {
         Field f = MazeGame.class.getDeclaredField(name); f.setAccessible(true); return f;
     }
     public static void main(String[] args) throws Exception {
+        // A radially farther sprite may still be closer to the camera plane.
+        double[] nearOffAxis = {2, 2, 'C'};
+        double[] farOnAxis = {2.5, 0, 'E'};
+        java.util.List<double[]> sprites = new java.util.ArrayList<>();
+        sprites.add(nearOffAxis); sprites.add(farOnAxis);
+        MazeGame.sortSprites(sprites, 1, 0);
+        if (sprites.get(0) != farOnAxis) throw new AssertionError("Sprites must be sorted by camera depth");
         MazeGame.Level level = MazeGame.Level.load(java.nio.file.Paths.get(args[0]));
         SwingUtilities.invokeAndWait(() -> {
             try {

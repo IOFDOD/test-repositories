@@ -73,6 +73,7 @@ int main(int argc, char** argv) {
     std::ofstream out(argv[1]);
     if (!out) { std::cerr << "Cannot open output file: " << argv[1] << '\n'; return 1; }
     for (const auto& row : map) out << row << '\n';
+    out.close();
     if (!out) { std::cerr << "Failed to write map.\n"; return 1; }
     std::cout << "Created " << argv[1] << " (seed " << seed << ")\n";
 }
